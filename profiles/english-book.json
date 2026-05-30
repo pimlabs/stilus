@@ -1,0 +1,8 @@
+{
+  "extends": "default",
+  "name": "english-book",
+  "chapter_pattern": "^(CHAPTER \\d+|INTRODUCTION|CONCLUSION|PREFACE|APPENDIX [A-Z]?)",
+  "stub_chapter_pattern": "^CHAPTER \\d+$",
+  "section_pattern": "^\\d+\\.\\d+\\s+[A-Z]",
+  "reference_pattern": "^\\[(\\d+)\\]"
+}
