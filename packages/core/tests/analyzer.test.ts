@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
-import { mkdtempSync, writeFileSync } from "fs";
-import { join } from "path";
-import { tmpdir } from "os";
-import { readFileSync } from "fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+
+const EXAMPLE_MD = join(import.meta.dir, "../data/example.md");
 import { getProfile, loadProfileFromFile, Profile } from "../src/config";
 import {
   analyzeText,
@@ -25,7 +26,7 @@ function tmpProfile(data: object): Profile {
 
 describe("analyzer", () => {
   it("detects broken lines in sample", () => {
-    const raw = readFileSync("data/example.md", "utf-8");
+    const raw = readFileSync(EXAMPLE_MD, "utf-8");
     const report = analyzeText(raw, profile);
     expect(report.metrics.words).toBe(72);
     expect(report.metrics.form_feeds).toBe(0);
@@ -34,7 +35,7 @@ describe("analyzer", () => {
   });
 
   it("cleaned sample has no broken lines", () => {
-    const raw = readFileSync("data/example.md", "utf-8");
+    const raw = readFileSync(EXAMPLE_MD, "utf-8");
     const cleaned = mergeAndStructure(raw, profile);
     const report = analyzeText(cleaned, profile, true);
     expect(report.severity).toBe("ok");
@@ -42,7 +43,7 @@ describe("analyzer", () => {
   });
 
   it("compare tracks word delta", () => {
-    const raw = readFileSync("data/example.md", "utf-8");
+    const raw = readFileSync(EXAMPLE_MD, "utf-8");
     const src = analyzeText(raw, profile);
     const cln = analyzeText(mergeAndStructure(raw, profile), profile);
     const cmp = compareReports(src, cln, profile);
@@ -125,7 +126,7 @@ describe("analyzer", () => {
   });
 
   it("chunk sample file", () => {
-    const raw = readFileSync("data/example.md", "utf-8");
+    const raw = readFileSync(EXAMPLE_MD, "utf-8");
     const chunks = chunkByHeadings(raw, profile);
     expect(chunks.length).toBeGreaterThanOrEqual(1);
     expect(chunks.some(c => c.heading.includes("BAB"))).toBe(true);
@@ -243,5 +244,19 @@ describe("analyzer", () => {
     const report = analyzeText(text, profile);
     expect(report.structural_elements.figures).toBe(1);
     expect(report.structural_elements.table_captions).toBe(1);
+  });
+
+  it("table caption not merged into paragraph", () => {
+    const text = "BAB 1 - Contoh\n\nTabel 1 Data Penting\n\n100 200 300\n\nParagraf berikutnya.\n";
+    const out = mergeAndStructure(text, profile);
+    expect(out).toContain("Tabel 1 Data Penting\n\n");
+    expect(out).not.toContain("Tabel 1 Data Penting 100");
+  });
+
+  it("figure caption not merged into paragraph", () => {
+    const text = "BAB 1 - Contoh\n\nGambar 1 Alur Penelitian\n\nParagraf setelah gambar.\n";
+    const out = mergeAndStructure(text, profile);
+    expect(out).toContain("Gambar 1 Alur Penelitian\n\n");
+    expect(out).not.toContain("Gambar 1 Alur Penelitian Paragraf");
   });
 });

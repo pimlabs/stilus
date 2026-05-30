@@ -99,7 +99,10 @@ export function mergeAndStructure(text: string, profile?: Profile): string {
     }
 
     const structural =
-      isHeading(line, p) || isSectionHeading(line, p) || isList(line) || isUrl(line) || isTableRow(line);
+      isHeading(line, p) || isSectionHeading(line, p) || isList(line) || isUrl(line) || isTableRow(line) ||
+      (p.table_caption_pattern !== "" && new RegExp(p.table_caption_pattern, "i").test(line)) ||
+      (p.figure_pattern !== "" && new RegExp(p.figure_pattern, "i").test(line)) ||
+      (p.footnote_pattern !== "" && new RegExp(p.footnote_pattern, "i").test(line));
 
     if (!structural && processed.length && shouldJoinUrl(processed[processed.length - 1], line, p)) {
       let prev = processed.pop()!;
