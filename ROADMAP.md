@@ -12,26 +12,26 @@ Status: complete, not publicly released.
 
 ## V1 — TypeScript MCP Skill
 
-Status: planned.
+Status: complete.
 
-Full rewrite as a native MCP server. Claude invokes tools directly — no manual CLI commands needed.
+Native MCP server. Claude invokes tools directly — no manual CLI commands needed.
 
-**Tools:**
-- `manuscript_inspect(file, profile)` — analyze a manuscript, return structured report
-- `manuscript_clean(file, output, profile, dry_run)` — clean and return manifest
-- `manuscript_compare(source, clean, profile)` — compare before/after
-- `manuscript_chunk(file, output_dir, profile)` — split into per-chapter files
-- `manuscript_profiles()` — list available built-in profiles
-- `manuscript_init(name, extends)` — scaffold a new profile JSON
-- `manuscript_validate_profile(path)` — validate a profile file without running it on a manuscript
+**Tools (all implemented):**
+- `inspect(file, profile)` — analyze a manuscript, return structured report
+- `clean(file, output, profile, dry_run)` — clean and return manifest
+- `compare(source, clean, profile)` — compare before/after
+- `chunk(file, output_dir, profile)` — split into per-chapter files
+- `profiles()` — list available built-in profiles
+- `init(name, output, extends)` — scaffold a new profile JSON
+- `validate_profile(path)` — validate a profile file without running it on a manuscript
 
 **Distribution:**
-- Technical users: `npx manuscript-mcp` + one MCP config entry
-- Non-technical users: single binary via `bun build --compile`
+- Single binary via `bun build --compile --target bun` (`packages/mcp/stilus-mcp`)
+- `npx` packaging deferred to V2
 
 **Engine:**
-- Markdown AST via `remark`/`unified` — more accurate than regex-based detection
-- Same command contract as the Python prototype
+- Regex-based detection (line-level analysis)
+- Markdown AST via `remark`/`unified` deferred to V2
 
 ## V2 — Ecosystem
 

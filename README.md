@@ -1,101 +1,59 @@
-# Manuscript QA & Cleanup CLI
+# stilus
 
-A small CLI for cleaning, validating, comparing, and reporting on Markdown manuscripts extracted from PDF.
+Manuscript QA & cleanup MCP for Claude. Analyzes, cleans, chunks, and compares Markdown manuscripts from PDF extraction.
 
-Source manuscript files are stored as local data, e.g. `data/naskah.md` or `data/naskah.pdf`. The `data/` directory is ignored by Git, except for `data/example.md` which ships as a small sample.
+## Quick Start
 
-## Commands
+Add to your Claude Desktop or Claude Code MCP config:
 
-Inspect a manuscript:
-
-```bash
-python3 -m manuscript inspect data/naskah.md
+```json
+{
+  "mcpServers": {
+    "stilus": {
+      "command": "/Users/ekodedypurnomo/Workspace/stilus/packages/mcp/stilus-mcp"
+    }
+  }
+}
 ```
 
-Clean a manuscript:
+Then ask Claude to inspect, clean, or chunk your manuscript.
 
-```bash
-python3 -m manuscript clean data/naskah.md -o dist/naskah-clean.md
+## Tools
+
+| Tool | Description |
+|------|-------------|
+| `inspect` | Analyze a manuscript — returns word count, broken lines, citations, structural elements |
+| `clean` | Merge broken paragraph lines, normalize em-dash and punctuation spacing |
+| `compare` | Compare source vs. cleaned manuscript, report word/citation/broken-line deltas |
+| `chunk` | Split a manuscript into per-chapter `.md` files |
+| `profiles` | List all built-in profiles with their inheritance chain |
+| `init` | Scaffold a new profile JSON file |
+| `validate_profile` | Validate a profile file without running it on a manuscript |
+
+### Example usage
+
 ```
+Inspect data/naskah.md using the indonesian-book profile.
 
-Compare source against the cleaned output:
+Clean data/naskah.md → dist/naskah-clean.md, then compare them.
 
-```bash
-python3 -m manuscript compare data/naskah.md dist/naskah-clean.md
+Chunk data/naskah.md into dist/chunks/.
 ```
-
-Export a JSON report from inspect:
-
-```bash
-python3 -m manuscript inspect dist/naskah-clean.md --json dist/report.json
-```
-
-Split a manuscript into per-chapter files:
-
-```bash
-python3 -m manuscript chunk data/naskah.md -o dist/chunks/
-```
-
-Try the built-in sample:
-
-```bash
-python3 -m manuscript inspect --sample
-python3 -m manuscript clean --sample
-python3 -m manuscript compare data/example.md dist/example-clean.md
-```
-
-## Compatibility Wrappers
-
-`build.py` and `analyze.py` remain available as temporary wrappers:
-
-```bash
-python3 build.py data/naskah.md -o dist/naskah-clean.md
-python3 analyze.py data/naskah.md
-```
-
-With sample:
-
-```bash
-python3 build.py --sample
-python3 analyze.py --sample
-```
-
-## Quality Modes
-
-Pass `--strict` to fail with exit code `1` when serious issues are found.
-
-```bash
-python3 -m manuscript inspect data/naskah.md --strict
-python3 -m manuscript compare data/naskah.md dist/naskah-clean.md --strict
-```
-
-Severity levels:
-
-- `ok` — no warnings or errors.
-- `warning` — potential issues found, but the command still succeeds.
-- `error` — serious issues found; command exits with code `1`.
-
-Exit codes:
-
-- `0` — command succeeded, including when only warnings are present.
-- `1` — invalid input, unreadable file, unknown profile, or severity reached `error`.
-
-Without `--strict`, findings like broken lines are reported as `warning`. With `--strict`, key QA findings are elevated to `error`, making it suitable as a final gate before a manuscript is considered clean.
 
 ## Profiles
 
-The default profile is `indonesian-book`, which recognizes `BAB`, `PROLOG`, `EPILOG`, `DAFTAR ISI`, and `LAMPIRAN`. It extends the `default` profile — a generic base using standard Markdown heading patterns (`#`, `##`, `###`).
+The default profile is `indonesian-book`, which recognizes `BAB`, `PROLOG`, `EPILOG`, `DAFTAR ISI`, and `LAMPIRAN`. It extends `default` — a generic base using standard Markdown heading patterns (`#`, `##`, `###`).
 
-Override the profile with `--profile`:
+Pass `profile` to any tool to override:
 
-```bash
-python3 -m manuscript inspect data/naskah.md --profile indonesian-book
-python3 -m manuscript inspect data/naskah.md --profile profiles/my-profile.json
+```
+inspect file="data/naskah.md" profile="indonesian-book"
+inspect file="data/naskah.md" profile="profiles/my-profile.json"
 ```
 
-### Custom Profiles
+### Custom profiles
 
-Create a JSON file with at minimum `name`, `chapter_pattern`, `section_pattern`, and `reference_pattern`. Extend an existing built-in to inherit its defaults:
+A profile JSON needs at minimum `name`, `chapter_pattern`, `section_pattern`, and `reference_pattern`. Extend an existing built-in to inherit defaults:
 
 ```json
 {
@@ -106,62 +64,39 @@ Create a JSON file with at minimum `name`, `chapter_pattern`, `section_pattern`,
 }
 ```
 
-Point `--profile` at a file path for any JSON profile:
+Use `init` to scaffold a new profile, then `validate_profile` to check it before use.
 
-```bash
-python3 -m manuscript inspect data/naskah.md --profile profiles/penulis-a.json
-```
+See `PROFILES.md` for the full field reference.
 
-See `PROFILES.md` for the full field reference and profile inheritance documentation.
+## Severity
+
+Every tool returns a `severity` field:
+
+- `ok` — no warnings or errors
+- `warning` — potential issues found, command still succeeded
+- `error` — serious issues; review before proceeding
+
+Pass `strict: true` to elevate warnings to errors (useful as a final gate).
 
 ## Output
 
-The `clean` command writes two files:
+`clean` writes two files:
+- The cleaned Markdown at the path given by `output`
+- `manifest.json` in the same directory — input/output paths, timestamp, before/after metrics, warnings, comparison result, and profile used
 
-- The cleaned Markdown file at the path given by `--output`
-- `dist/manifest.json` containing input/output paths, timestamp, before/after metrics, warnings, errors, comparison result, and the profile used
+`chunk` writes one `.md` file per chapter into the specified output directory.
 
-The `chunk` command writes one `.md` file per chapter into the specified output directory.
-
-The `dist/` folder is treated as regeneratable output and is not tracked by Git.
-
-## Large Manuscript Workflow
-
-For large manuscripts, use the explicit workflow below and avoid editing files in `data/` directly:
+## Development
 
 ```bash
-python3 -m manuscript inspect data/naskah.md
-python3 -m manuscript clean data/naskah.md -o dist/naskah-clean.md
-python3 -m manuscript compare data/naskah.md dist/naskah-clean.md
-python3 -m manuscript inspect dist/naskah-clean.md --strict
+bun test          # run 48 tests
+bun run build     # build @stilus/core (tsc) + stilus-mcp binary
 ```
 
-If `compare` shows a large word delta or `inspect --strict` fails, review `dist/manifest.json` before proceeding with manual cleanup.
+Source is under `packages/core/` (engine) and `packages/mcp/` (MCP server).
 
-For very long manuscripts, split by chapter first and audit each part:
-
-```bash
-python3 -m manuscript chunk data/naskah.md -o dist/chunks/
-python3 -m manuscript inspect dist/chunks/01-bab-1.md --strict
-```
-
-## Tests
-
-Run all tests:
-
-```bash
-python3 -m unittest
-```
-
-Acceptance smoke test:
-
-```bash
-python3 -m manuscript inspect data/example.md
-python3 -m manuscript clean data/example.md -o dist/example-clean.md
-python3 -m manuscript compare data/example.md dist/example-clean.md
-python3 -m manuscript inspect dist/example-clean.md --json dist/example-report.json
-```
+Manuscript source files live in `data/` — not tracked by Git except for `packages/core/data/example.md` (test fixture).
 
 ## Roadmap
 
-See `ROADMAP.md` for the V1, V2, and V3 direction.
+See [ROADMAP.md](ROADMAP.md).
