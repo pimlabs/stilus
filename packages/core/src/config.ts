@@ -1,8 +1,8 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
 
-const PROFILES_DIR = fileURLToPath(new URL("../../../profiles", import.meta.url));
+import defaultJson from "../../../profiles/default.json";
+import englishBookJson from "../../../profiles/english-book.json";
+import indonesianBookJson from "../../../profiles/indonesian-book.json";
 
 export const DEFAULT_PROFILE = "indonesian-book";
 
@@ -39,6 +39,12 @@ export interface Profile {
 }
 
 type RawData = Record<string, unknown>;
+
+const BUILT_INS: Record<string, RawData> = {
+  "default": defaultJson as RawData,
+  "english-book": englishBookJson as RawData,
+  "indonesian-book": indonesianBookJson as RawData,
+};
 
 function buildProfile(data: RawData): Profile {
   return Object.freeze({
@@ -93,12 +99,12 @@ export function profileToDict(profile: Profile): RawData {
 function validateAndBuild(data: RawData, path: string): Profile {
   const missing = [...REQUIRED_FIELDS].filter(f => !(f in data)).sort();
   if (missing.length > 0) {
-    throw new Error(`Profile file '${path}' missing required fields: ${JSON.stringify(missing)}.`);
+    throw new Error(`Profile '${path}' missing required fields: ${JSON.stringify(missing)}.`);
   }
   const allFields = new Set([...REQUIRED_FIELDS, ...OPTIONAL_FIELDS]);
   const unknown = Object.keys(data).filter(k => !allFields.has(k)).sort();
   if (unknown.length > 0) {
-    throw new Error(`Profile file '${path}' has unknown fields: ${JSON.stringify(unknown)}.`);
+    throw new Error(`Profile '${path}' has unknown fields: ${JSON.stringify(unknown)}.`);
   }
   return buildProfile(data);
 }
@@ -115,29 +121,27 @@ export function loadProfileFromFile(path: string): Profile {
 
 export function getProfile(name: string = DEFAULT_PROFILE): Profile {
   if (name.endsWith(".json")) return loadProfileFromFile(name);
-  const profilePath = join(PROFILES_DIR, `${name}.json`);
-  if (!existsSync(profilePath)) {
-    const available = readdirSync(PROFILES_DIR)
-      .filter(f => f.endsWith(".json"))
-      .map(f => f.replace(".json", ""))
-      .sort()
-      .join(", ");
+  const raw = BUILT_INS[name];
+  if (!raw) {
+    const available = Object.keys(BUILT_INS).sort().join(", ");
     throw new Error(`Unknown profile '${name}'. Available profiles: ${available}.`);
   }
-  return loadProfileFromFile(profilePath);
+  if ("extends" in raw) {
+    const base = getProfile(raw.extends as string);
+    const { extends: _, ...rest } = raw;
+    return validateAndBuild({ ...profileToDict(base), ...rest }, `built-in:${name}`);
+  }
+  return validateAndBuild(raw, `built-in:${name}`);
 }
 
 export function listProfiles(): Array<{ name: string; extends: string | null }> {
-  return readdirSync(PROFILES_DIR)
-    .filter((f: string) => f.endsWith(".json"))
-    .sort()
-    .map((f: string) => {
-      const data = JSON.parse(readFileSync(join(PROFILES_DIR, f), "utf-8")) as RawData;
-      return {
-        name: (data.name as string | undefined) ?? f.replace(".json", ""),
-        extends: (data.extends as string | undefined) ?? null,
-      };
-    });
+  return Object.keys(BUILT_INS).sort().map(key => {
+    const raw = BUILT_INS[key];
+    return {
+      name: (raw.name as string | undefined) ?? key,
+      extends: (raw.extends as string | undefined) ?? null,
+    };
+  });
 }
 
 export function initProfile(name: string, extendsName?: string): RawData {
