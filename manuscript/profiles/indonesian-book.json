@@ -1,0 +1,11 @@
+{
+  "extends": "default",
+  "name": "indonesian-book",
+  "chapter_pattern": "^(PROLOG|BAB \\d+|EPILOG|LAMPIRAN|WORKBOOK|DAFTAR ISI|CATATAN EDISI|\\d+\\s+EPILOG)",
+  "stub_chapter_pattern": "^BAB \\d+",
+  "section_pattern": "^(\\d+\\.\\d+\\s+[A-Z])",
+  "subsection_pattern": "^(\\d+\\.\\d+\\.\\d+\\s+[A-Z])",
+  "reference_pattern": "^(\\d+)\\.\\s+",
+  "figure_pattern": "^(Gambar|Figure)\\s+\\d+",
+  "table_caption_pattern": "^(Tabel|Table)\\s+\\d+"
+}
