@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .analyzer import SENTENCE_ENDINGS, analyze_text, compare_reports, is_heading, is_section_heading, is_table_row
+from .analyzer import analyze_text, compare_reports, is_heading, is_section_heading, is_table_row
 from .config import get_profile
 
 
@@ -10,11 +10,15 @@ LIST_PATTERN = re.compile(r"^(\s*[-*]|\s*\d+\.\s+)")
 URL_PATTERN = re.compile(r"^https?://[^\s]+")
 
 
-def normalize_text(text):
+def normalize_text(text, profile=None):
+    em_dash = profile.normalize_em_dash if profile is not None else True
+    space_punct = profile.normalize_space_before_punctuation if profile is not None else True
     text = text.replace("\x0c", "\n").replace("\f", "\n")
-    text = re.sub(r"[ \t]+,[ \t]*", ", ", text)
-    text = re.sub(r"[ \t]+\.[ \t]*", ". ", text)
-    text = re.sub(r"[ \t]*—[ \t]*|[ \t]*--[ \t]*", " — ", text)
+    if space_punct:
+        text = re.sub(r"[ \t]+,[ \t]*", ", ", text)
+        text = re.sub(r"[ \t]+\.[ \t]*", ". ", text)
+    if em_dash:
+        text = re.sub(r"[ \t]*—[ \t]*|[ \t]*--[ \t]*", " — ", text)
     return text
 
 
@@ -52,7 +56,7 @@ def flush_paragraph(processed_lines, current_paragraph):
 
 def merge_and_structure(text, profile=None):
     profile = profile or get_profile()
-    raw_lines = normalize_text(text).splitlines()
+    raw_lines = normalize_text(text, profile=profile).splitlines()
     processed_lines = []
     current_paragraph = []
 
@@ -60,7 +64,7 @@ def merge_and_structure(text, profile=None):
         line = re.sub(r"\s+", " ", raw_line.strip())
 
         if not line:
-            if current_paragraph and current_paragraph[-1].endswith(SENTENCE_ENDINGS):
+            if current_paragraph and current_paragraph[-1].endswith(profile.sentence_endings):
                 flush_paragraph(processed_lines, current_paragraph)
                 processed_lines.append("")
             continue
@@ -114,7 +118,7 @@ def merge_and_structure(text, profile=None):
     return final_text
 
 
-def clean_manuscript(input_path, output_path, profile=None, strict=False):
+def clean_manuscript(input_path, output_path, profile=None, strict=False, dry_run=False):
     profile = profile or get_profile()
     input_path = Path(input_path)
     output_path = Path(output_path)
@@ -123,11 +127,13 @@ def clean_manuscript(input_path, output_path, profile=None, strict=False):
     clean_text = merge_and_structure(raw_text, profile=profile)
     after = analyze_text(clean_text, profile=profile, strict=strict)
     comparison = compare_reports(before, after, profile=profile, strict=strict)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(clean_text, encoding="utf-8")
+    if not dry_run:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(clean_text, encoding="utf-8")
     manifest = {
         "input_path": str(input_path),
         "output_path": str(output_path),
+        "dry_run": dry_run,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "profile": profile.to_dict(),
         "before": before,

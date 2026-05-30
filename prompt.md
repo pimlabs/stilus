@@ -1,1 +1,0 @@
-"I have implementation_plan.md and task.md for cleaning up The_Value_Era_Naskah_Lengkap.pdf.md. analyze.py is the starting point. Please write the full python cleanup script as planned, run it to fix paragraph wrapping, whitespace, and layout issues, and let me know the progress on the tasks."

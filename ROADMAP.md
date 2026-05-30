@@ -1,49 +1,41 @@
 # Roadmap
 
-Roadmap ini menjaga project tetap ringkas sekarang, tetapi punya jalur naik kelas yang jelas.
+## Foundation — Python Prototype
 
-## V1 - Stable CLI Baseline
+Status: complete, not publicly released.
 
-Status: done.
+- Core commands: `inspect`, `clean`, `compare`, `chunk`, `profiles`.
+- Language-agnostic engine — all detection rules live in profiles.
+- Profile system: JSON files, inheritance via `extends`, built-in profiles (`default`, `english-book`, `indonesian-book`).
+- MCP-ready CLI: errors to stderr, `--dry-run`, `--json`, `--manifest`, structured JSON output on every command.
+- 74 tests, all passing.
 
-- CLI utama: `inspect`, `clean`, dan `compare`.
-- Wrapper kompatibel: `build.py` dan `analyze.py`.
-- Sample kecil: `data/example.md`.
-- Data asli di `data/` tidak masuk Git.
-- JSON report lewat `inspect --json`.
-- Manifest otomatis saat `clean`.
-- Test suite berbasis Python standard library.
+## V1 — TypeScript MCP Skill
 
-## V1.1 - Polish
+Status: planned.
 
-Fokus: membuat V1 lebih nyaman dipakai tanpa mengubah bentuk dasar.
+Full rewrite as a native MCP server. Claude invokes tools directly — no manual CLI commands needed.
 
-- Perbaiki wording report agar lebih mudah dibaca.
-- Tambah contoh workflow di README untuk naskah besar.
-- Tambah dokumentasi exit code dan strict mode.
-- Rapikan output test agar tidak terlalu berisik bila diperlukan.
-- Tambah lebih banyak fixture kecil untuk edge case PDF extraction.
+**Tools:**
+- `manuscript_inspect(file, profile)` — analyze a manuscript, return structured report
+- `manuscript_clean(file, output, profile, dry_run)` — clean and return manifest
+- `manuscript_compare(source, clean, profile)` — compare before/after
+- `manuscript_chunk(file, output_dir, profile)` — split into per-chapter files
+- `manuscript_profiles()` — list available built-in profiles
+- `manuscript_init(name, extends)` — scaffold a new profile JSON
+- `manuscript_validate_profile(path)` — validate a profile file without running it on a manuscript
 
-## V2 - Stronger Manuscript Engine
+**Distribution:**
+- Technical users: `npx manuscript-mcp` + one MCP config entry
+- Non-technical users: single binary via `bun build --compile`
 
-Fokus: kemampuan lebih kuat untuk naskah panjang dan format yang lebih beragam.
+**Engine:**
+- Markdown AST via `remark`/`unified` — more accurate than regex-based detection
+- Same command contract as the Python prototype
 
-- Chunking per BAB/heading agar file besar lebih mudah diproses dan diaudit.
-- Config/profile yang lebih fleksibel.
-- Deteksi tabel lebih baik, termasuk kandidat tabel rusak.
-- Report yang mengelompokkan warning per section/chapter.
-- Compare yang lebih detail untuk heading, citations, dan table blocks.
-- Mode resume untuk proses naskah besar jika dibutuhkan.
+## V2 — Ecosystem
 
-## V3 - Rewrite or Markdown-Aware Engine
+Status: deferred.
 
-Status: later.
-
-V3 hanya layak dimulai jika V2 sudah membuktikan kebutuhan nyata.
-
-Pilihan arah:
-
-- TypeScript/Node jika fokusnya Markdown-aware pipeline, AST validation, dan ekosistem content tooling.
-- Go jika fokusnya binary tunggal, performa streaming, dan distribusi CLI lintas platform.
-
-Prinsip penting: command contract tetap stabil agar workflow dan skill agent tidak perlu berubah.
+- VS Code extension — live QA while editing a manuscript
+- Obsidian plugin — if there is demand
