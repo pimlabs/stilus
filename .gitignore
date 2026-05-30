@@ -9,6 +9,10 @@ env/
 
 dist/
 build/
+node_modules/
+stilus-mcp
+*.mcp
+bun.lockb
 
 # Local manuscript inputs. Keep real data out of Git.
 data/*

@@ -1,0 +1,21 @@
+{
+  "name": "stilus-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "stilus-mcp": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build --compile src/index.ts --outfile stilus-mcp",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@stilus/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "typescript": "latest"
+  }
+}
