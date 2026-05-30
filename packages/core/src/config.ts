@@ -1,7 +1,8 @@
-import { existsSync, readFileSync, readdirSync } from "fs";
-import { join, resolve } from "path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const PROFILES_DIR = resolve(import.meta.dir, "../../../profiles");
+const PROFILES_DIR = fileURLToPath(new URL("../../../profiles", import.meta.url));
 
 export const DEFAULT_PROFILE = "indonesian-book";
 
@@ -128,13 +129,38 @@ export function getProfile(name: string = DEFAULT_PROFILE): Profile {
 
 export function listProfiles(): Array<{ name: string; extends: string | null }> {
   return readdirSync(PROFILES_DIR)
-    .filter(f => f.endsWith(".json"))
+    .filter((f: string) => f.endsWith(".json"))
     .sort()
-    .map(f => {
+    .map((f: string) => {
       const data = JSON.parse(readFileSync(join(PROFILES_DIR, f), "utf-8")) as RawData;
       return {
         name: (data.name as string | undefined) ?? f.replace(".json", ""),
         extends: (data.extends as string | undefined) ?? null,
       };
     });
+}
+
+export function initProfile(name: string, extendsName?: string): RawData {
+  if (extendsName) {
+    return { extends: extendsName, name };
+  }
+  return {
+    name,
+    chapter_pattern: "^#+ ",
+    section_pattern: "^##+ ",
+    reference_pattern: "^\\[\\d+\\]",
+    stub_chapter_pattern: "",
+    subsection_pattern: "",
+    figure_pattern: "",
+    table_caption_pattern: "",
+    footnote_pattern: "",
+    sentence_endings: [".", "?", "!", "\"", "”", "」"],
+    broken_line_endings: [".", "?", "!", "\"", "”", "」", ":", "-", "*"],
+    paragraph_merge_threshold: 75,
+    broken_line_min_length: 50,
+    word_delta_threshold: 50,
+    normalize_em_dash: true,
+    normalize_space_before_punctuation: true,
+    required_sections: [],
+  };
 }

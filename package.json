@@ -6,6 +6,6 @@
   "scripts": {
     "test": "bun test",
     "build": "bun run --filter='*' build",
-    "bundle": "cd packages/mcp && bun build --compile src/index.ts --outfile ../../stilus-mcp"
+    "bundle": "cd packages/mcp && bun build --compile --target bun src/index.ts --outfile ../../stilus-mcp"
   }
 }

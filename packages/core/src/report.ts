@@ -1,5 +1,5 @@
-import { mkdirSync, writeFileSync } from "fs";
-import { dirname } from "path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { AnalysisReport, Chunk, CompareReport } from "./analyzer";
 
 export function writeJson(path: string, data: unknown): void {

@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import { DEFAULT_PROFILE, Profile, getProfile, profileToDict } from "./config";
 
 export type AnalysisReport = {
