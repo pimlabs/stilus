@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 
-import defaultJson from "../../../profiles/default.json";
-import englishBookJson from "../../../profiles/english-book.json";
-import indonesianBookJson from "../../../profiles/indonesian-book.json";
+import defaultJson from "../profiles/default.json";
+import englishBookJson from "../profiles/english-book.json";
+import indonesianBookJson from "../profiles/indonesian-book.json";
 
 export const DEFAULT_PROFILE = "indonesian-book";
 

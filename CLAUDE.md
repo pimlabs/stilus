@@ -49,7 +49,7 @@ import indonesianBookJson from "../../../profiles/indonesian-book.json";
 
 **Do not replace with filesystem reads.** `import.meta.url` and `import.meta.dir` do not resolve correctly in compiled Bun binaries. Static imports are the only approach that works.
 
-Profile JSON source files live at `/profiles/` (repo root), not inside packages.
+Profile JSON source files live at `packages/core/profiles/`, not at repo root.
 
 ## Critical: `import.meta.dir` Banned
 
