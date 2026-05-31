@@ -12,6 +12,18 @@ curl -fsSL https://bun.sh/install | bash
 
 ## Quick Start
 
+### CLI
+
+```bash
+bunx @pimlabs/stilus inspect manuscript.md
+bunx @pimlabs/stilus clean draft.md clean.md
+bunx @pimlabs/stilus chunk manuscript.md ./chapters/
+```
+
+See [packages/cli/README.md](packages/cli/README.md) for full CLI docs.
+
+### MCP (Claude integration)
+
 Add to your Claude Desktop or Claude Code MCP config:
 
 ```json
@@ -152,13 +164,14 @@ Pass `strict: true` to elevate warnings to errors (useful as a final quality gat
 
 ```bash
 bun test              # run 50 tests
-bun run bundle        # build packages/mcp/dist/stilus-mcp
+bun run bundle        # build both packages/mcp/dist/stilus-mcp and packages/cli/dist/stilus
 ```
 
 See [CLAUDE.md](CLAUDE.md) for release flow and project gotchas.
 
 ## Links
 
-- npm: [@pimlabs/stilus-mcp](https://www.npmjs.com/package/@pimlabs/stilus-mcp)
+- npm CLI: [@pimlabs/stilus](https://www.npmjs.com/package/@pimlabs/stilus)
+- npm MCP: [@pimlabs/stilus-mcp](https://www.npmjs.com/package/@pimlabs/stilus-mcp)
 - GitHub: [pimlabs/stilus](https://github.com/pimlabs/stilus)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
