@@ -62,12 +62,12 @@ Chunk /Users/me/manuscripts/dist/clean.md into /Users/me/manuscripts/dist/chunks
 | Tool | Parameters | Description |
 |------|-----------|-------------|
 | `inspect` | `file`, `profile?`, `strict?` | Analyze manuscript — word count, broken lines, citations, structural elements |
-| `clean` | `file`, `output`, `profile?`, `dry_run?` | Merge broken paragraph lines, normalize em-dash and punctuation, write manifest |
-| `compare` | `source`, `clean`, `profile?`, `strict?` | Before/after deltas — words, broken lines, citations, tables |
-| `chunk` | `file`, `output_dir`, `profile?` | Split into per-chapter `.md` files |
-| `profiles` | — | List built-in profiles with inheritance chain |
-| `init` | `name`, `output?`, `extends?` | Scaffold a new profile JSON file |
-| `validate_profile` | `path` | Validate a profile file before running it on a manuscript |
+| `clean` | `file`, `output?`, `profile?`, `dry_run?` | Merge broken paragraph lines, normalize em-dash and punctuation, write manifest |
+| `compare` | `before`, `after`, `profile?`, `strict?` | Before/after deltas — words, broken lines, citations, tables |
+| `chunk` | `file`, `output_dir?`, `profile?` | Split into per-chapter `.md` files |
+| `profile_list` | — | List built-in profiles with inheritance chain |
+| `profile_init` | `name`, `output?`, `extends?` | Scaffold a new profile JSON file |
+| `profile_validate` | `path` | Validate a profile file before running it on a manuscript |
 
 ### Example: inspect output
 
@@ -117,10 +117,10 @@ Default: `indonesian-book`. Three built-ins ship with stilus:
 
 ### Custom profiles
 
-Scaffold with `init`, then edit the output JSON:
+Scaffold with `profile_init`, then edit the output JSON:
 
 ```
-init(name: "my-author", extends: "indonesian-book", output: "profiles/my-author.json")
+profile_init(name: "my-author", extends: "indonesian-book", output: "profiles/my-author.json")
 ```
 
 Minimum required fields: `name`, `chapter_pattern`, `section_pattern`, `reference_pattern`. Extend a built-in to inherit everything else:
@@ -137,7 +137,7 @@ Minimum required fields: `name`, `chapter_pattern`, `section_pattern`, `referenc
 Validate before use:
 
 ```
-validate_profile(path: "profiles/my-author.json")
+profile_validate(path: "profiles/my-author.json")
 ```
 
 See [PROFILES.md](PROFILES.md) for the full field reference.

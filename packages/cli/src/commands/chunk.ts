@@ -1,11 +1,16 @@
 import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { chunkFile, DEFAULT_PROFILE, formatChunkSummary, getProfile } from "@stilus/core";
 import { die } from "../args.ts";
 
+function deriveChunkDir(file: string): string {
+  const base = file.replace(/^.*[/\\]/, "").replace(/\.md$/i, "");
+  return join(dirname(file), `${base}-chunks`);
+}
+
 export async function run(positional: string[], flags: Record<string, string | boolean>): Promise<void> {
-  const [file, outputDir] = positional;
-  if (!file || !outputDir) die("chunk requires <file> <output-dir>");
+  const [file, outputDir = deriveChunkDir(file)] = positional;
+  if (!file) die("chunk requires <file>");
 
   const profile = getProfile((flags.profile as string | undefined) ?? DEFAULT_PROFILE);
 
