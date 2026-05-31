@@ -4,7 +4,7 @@ A profile tells the engine how a specific manuscript is structured. Because ever
 
 ## Built-in Profiles
 
-Profiles in `manuscript/profiles/` are available by name:
+Three profiles ship with stilus and are available by name:
 
 | Name | Description |
 |------|-------------|
@@ -12,18 +12,24 @@ Profiles in `manuscript/profiles/` are available by name:
 | `english-book` | Standard English non-fiction book. Extends `default`. Recognizes `CHAPTER`, `INTRODUCTION`, `CONCLUSION`, `PREFACE`, `APPENDIX`, and bracketed references `[1]`. |
 | `indonesian-book` | Standard Indonesian non-fiction book. Extends `default`. Recognizes `BAB`, `PROLOG`, `EPILOG`, `LAMPIRAN`, and numbered sections (`1.1`, `1.1.1`). |
 
-Reference a built-in profile by name:
+Reference a built-in profile by name in any tool call:
 
-```bash
-python3 -m manuscript inspect data/naskah.md --profile indonesian-book
+```
+inspect(file: "data/naskah.md", profile: "indonesian-book")
 ```
 
 ## Per-Author Profiles
 
-Each author tends to have their own conventions. Create a JSON file for each one:
+Each author tends to have their own conventions. Scaffold a new profile with the `init` tool:
 
-```bash
-python3 -m manuscript inspect data/naskah.md --profile profiles/penulis-a.json
+```
+init(name: "penulis-a", extends: "indonesian-book")
+```
+
+This writes a starter JSON file. Edit the fields that differ from the base profile, then validate before use:
+
+```
+validate_profile(path: "profiles/penulis-a.json")
 ```
 
 It is practical to keep author profiles alongside the project:
@@ -97,7 +103,7 @@ Examples:
 | Convention | Pattern | Example line |
 |-----------|---------|--------------|
 | Numbered list (1. Author...) | `^(\\d+)\\.\\s+` | `1. Sumber Referensi` |
-| Bracketed (\\[1\\] Author...) | `^\\[(\\d+)\\]` | `[1] Sumber Referensi` |
+| Bracketed (\[1\] Author...) | `^\\[(\\d+)\\]` | `[1] Sumber Referensi` |
 | No reference list | `^$` (never matches) | — |
 
 ---
@@ -144,7 +150,7 @@ Default: same as `sentence_endings` plus `":"`, `"-"`, `"*"`.
 ---
 
 #### `word_delta_threshold`
-Maximum allowed word count change between source and cleaned output. Exceeding this threshold raises a warning (or error in `--strict` mode). Useful to catch accidental content loss during cleaning.
+Maximum allowed word count change between source and cleaned output. Exceeding this threshold raises a warning (or error in strict mode). Useful to catch accidental content loss during cleaning.
 
 ```json
 "word_delta_threshold": 100
@@ -261,62 +267,39 @@ A profile can extend another profile and override only the fields that differ. T
 
 ## Creating a Profile for a New Author
 
-Start by inspecting a raw manuscript and observing the patterns:
+Start by inspecting a raw manuscript to observe the patterns:
 
-```bash
-python3 -m manuscript inspect data/naskah-penulis-baru.md
+```
+inspect(file: "data/naskah-penulis-baru.md")
 ```
 
-Look at the output — ghost headings, broken lines, citation mismatches? Then build the profile:
+Look at the output — ghost headings, broken lines, citation mismatches? Scaffold a starter profile:
 
-```json
-{
-  "extends": "indonesian-book",
-  "name": "penulis-baru",
-  "stub_chapter_pattern": "^BAGIAN \\d+",
-  "chapter_pattern": "^(BAGIAN \\d+|PROLOG|PENUTUP)",
-  "broken_line_endings": [".", "?", "!", ":", "-", ")"],
-  "word_delta_threshold": 100,
-  "required_sections": ["DAFTAR ISI"]
-}
+```
+init(name: "penulis-baru", extends: "indonesian-book", output: "profiles/penulis-baru.json")
 ```
 
-Test it:
+Edit the generated JSON, then validate:
 
-```bash
-python3 -m manuscript inspect data/naskah-penulis-baru.md --profile profiles/penulis-baru.json
-python3 -m manuscript clean data/naskah-penulis-baru.md -o dist/penulis-baru-clean.md --profile profiles/penulis-baru.json
-python3 -m manuscript compare data/naskah-penulis-baru.md dist/penulis-baru-clean.md --profile profiles/penulis-baru.json
+```
+validate_profile(path: "profiles/penulis-baru.json")
 ```
 
-Iterate until `inspect --strict` passes cleanly.
+Run clean and compare to verify the result:
 
-## Adding a Profile as a Built-in
-
-Once a profile is stable and will be reused across many manuscripts, add it to `manuscript/profiles/`:
-
-```bash
-cp profiles/penulis-baru.json manuscript/profiles/penulis-baru.json
+```
+clean(file: "data/naskah-penulis-baru.md", output: "dist/penulis-baru-clean.md", profile: "profiles/penulis-baru.json")
+compare(source: "data/naskah-penulis-baru.md", clean: "dist/penulis-baru-clean.md", profile: "profiles/penulis-baru.json")
 ```
 
-It is then available by name without a path:
-
-```bash
-python3 -m manuscript inspect data/naskah.md --profile penulis-baru
-```
+Iterate until `inspect(strict: true)` passes cleanly.
 
 ## Profile Validation
 
 The engine validates every profile on load. A profile file with missing required fields or unrecognized keys raises an error immediately — before any processing starts.
 
-Missing required fields:
-
 ```
-Error: Profile file 'my-profile.json' missing required fields: ['chapter_pattern'].
-```
-
-Unknown field (likely a typo):
-
-```
-Error: Profile file 'my-profile.json' has unknown fields: ['chapter_pattrn'].
+validate_profile(path: "profiles/my-profile.json")
+# → Error: missing required fields: ["chapter_pattern"]
+# → Error: unknown fields: ["chapter_pattrn"]
 ```

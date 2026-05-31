@@ -1,0 +1,11 @@
+{
+  "name": "stilus",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "test": "bun test",
+    "build": "bun run --filter='*' build",
+    "bundle": "cd packages/mcp && bun build --bundle --target bun src/index.ts --outfile dist/index.js"
+  }
+}
