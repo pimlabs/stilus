@@ -1,0 +1,27 @@
+{
+  "name": "stilus-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for manuscript QA — inspect, clean, compare, chunk",
+  "type": "module",
+  "bin": {
+    "stilus-mcp": "./dist/index.js"
+  },
+  "files": ["dist/index.js", "README.md"],
+  "keywords": ["mcp", "manuscript", "markdown", "qa", "claude", "writing"],
+  "license": "MIT",
+  "engines": { "bun": ">=1.0.0" },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build --compile --target bun src/index.ts --outfile stilus-mcp",
+    "bundle": "bun build --bundle --target bun src/index.ts --outfile dist/index.js",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@stilus/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "typescript": "latest"
+  }
+}

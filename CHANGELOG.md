@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.0.0 — TypeScript MCP
+
+**Full rewrite as a native MCP server.** Claude invokes tools directly — no manual CLI commands.
+
+**Delivery:**
+- Bun monorepo: `@stilus/core` (engine package) + `stilus-mcp` (MCP server).
+- Distributed as a standalone binary via `bun build --compile --target bun`.
+- Add one entry to Claude Desktop / Claude Code MCP config to start using it.
+
+**Tools — 5 ported from Python CLI, 2 new:**
+- `inspect(file, profile, strict)` — analyze a manuscript, return structured JSON report.
+- `clean(file, output, profile, strict, dry_run)` — merge broken lines, normalize, write manifest.
+- `compare(source, clean, profile, strict)` — compare before/after, return deltas.
+- `chunk(file, output_dir, profile)` — split into per-chapter `.md` files.
+- `profiles()` — list all built-in profiles with inheritance chain.
+- `init(name, output, extends)` — **new**: scaffold a new profile JSON file.
+- `validate_profile(path)` — **new**: validate a profile file without running it on a manuscript.
+
+**Engine:**
+- Broken line detection, paragraph merging, em-dash/punctuation normalization, citation analysis — all ported 1:1 from Python.
+- Profile system: JSON files, `extends` inheritance, 18 configurable fields, 3 built-ins (`default`, `english-book`, `indonesian-book`).
+- Built-in profiles embedded as static imports — binary works without source files present.
+
+**Bug fix (also applies to Python prototype):**
+- `figure_pattern`, `table_caption_pattern`, and `footnote_pattern` are now respected during paragraph merging. Previously, figure/table captions could be silently merged into adjacent paragraphs.
+
+**Tests:** 50 passing (48 ported from Python test suite + 2 new for structural fix).
+
+---
+
 ## Python Prototype (internal development log)
 
 ## 0.3.2
