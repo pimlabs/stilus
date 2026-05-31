@@ -110,9 +110,12 @@ function isTableRow(line: string): boolean {
   return numCount >= 3 && s.length < 60;
 }
 
+const LIST_ITEM_PATTERN = /^(\s*[-*]|\s*\d+\.\s+)/;
+
 function isStructuralLine(stripped: string, profile: Profile): boolean {
   if (isTableRow(stripped)) return true;
   if (isSectionHeading(stripped, profile)) return true;
+  if (LIST_ITEM_PATTERN.test(stripped)) return true;
   if (profile.figure_pattern && new RegExp(profile.figure_pattern, "i").test(stripped)) return true;
   if (profile.table_caption_pattern && new RegExp(profile.table_caption_pattern, "i").test(stripped)) return true;
   if (profile.footnote_pattern && new RegExp(profile.footnote_pattern, "i").test(stripped)) return true;
