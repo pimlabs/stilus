@@ -1,9 +1,13 @@
 import { cleanManuscript, DEFAULT_PROFILE, getProfile } from "@stilus/core";
 import { die } from "../args.ts";
 
+function deriveCleanOutput(file: string): string {
+  return `${file.replace(/\.md$/i, "")}-clean.md`;
+}
+
 export async function run(positional: string[], flags: Record<string, string | boolean>): Promise<void> {
-  const [file, output] = positional;
-  if (!file || !output) die("clean requires <file> <output>");
+  const [file, output = deriveCleanOutput(file)] = positional;
+  if (!file) die("clean requires <file>");
 
   const profile = getProfile((flags.profile as string | undefined) ?? DEFAULT_PROFILE);
   const strict = flags.strict === true;

@@ -16,6 +16,17 @@ npm install -g @pimlabs/stilus
 
 **Requires:** [Bun](https://bun.sh) ≥ 1.0
 
+## Typical Workflow
+
+```bash
+stilus inspect manuscript.md                      # 1. QA check
+stilus clean manuscript.md                        # 2. fix → manuscript-clean.md
+stilus compare manuscript.md manuscript-clean.md  # 3. verify changes
+stilus chunk manuscript-clean.md                  # 4. split → manuscript-clean-chunks/
+```
+
+---
+
 ## Commands
 
 ### `inspect` — analyze a manuscript
@@ -24,33 +35,11 @@ npm install -g @pimlabs/stilus
 stilus inspect <file> [--profile <name|path>] [--strict] [--json]
 ```
 
-Runs QA analysis and prints a full report: word/line counts, broken lines, ghost headings, citations, missing sections.
+Runs QA analysis: word/line counts, broken lines, ghost headings, citations, missing sections.
 
 ```
 stilus inspect manuscript.md
-```
-
-```
-======================================================================
-MANUSCRIPT INSPECTION
-======================================================================
-Severity              : ok
-
-Characters            : 142,340
-Words                 : 24,516
-Lines                 : 3,201
-Empty line ratio      : 18.3%
-
-Page breaks           : 0
-Table blocks          : 4
-Broken tables (likely): 0
-Broken lines (likely) : 7
-Ghost headings        : 0
-
-Citations             : 42
-References found      : 38
-Missing references    : ["Smith2019","Jones2021"]
-======================================================================
+stilus inspect manuscript.md --profile english-book --json
 ```
 
 Exit code `1` if severity is `error`.
@@ -60,53 +49,31 @@ Exit code `1` if severity is `error`.
 ### `clean` — fix broken lines and normalize formatting
 
 ```bash
-stilus clean <file> <output> [--profile <name|path>] [--strict] [--dry-run] [--json]
+stilus clean <file> [output] [--profile <name|path>] [--strict] [--dry-run] [--json]
 ```
 
-Merges broken lines, normalizes punctuation spacing, em-dashes. Writes cleaned file and a `<output>.manifest.json` alongside it.
+Merges broken lines, normalizes punctuation and em-dashes. Output defaults to `<file>-clean.md` in the same directory.
 
-```
-stilus clean draft.md clean.md
-stilus clean draft.md clean.md --dry-run   # preview only, no files written
+```bash
+stilus clean draft.md                  # → draft-clean.md
+stilus clean draft.md revised.md       # explicit output
+stilus clean draft.md --dry-run        # preview only, no files written
 ```
 
-```
-Cleaned: draft.md → clean.md
-  Words        : 24,516 → 24,514 (Δ-2)
-  Broken lines : 7 → 0
-  Severity     : ok
-```
+Also writes `<output>.manifest.json` with full before/after report.
 
 ---
 
 ### `compare` — diff two manuscript versions
 
 ```bash
-stilus compare <source> <clean> [--profile <name|path>] [--strict] [--json]
+stilus compare <before> <after> [--profile <name|path>] [--strict] [--json]
 ```
 
-Shows word, character, heading, citation, and broken-line deltas between two files.
+Shows word, character, heading, citation, and broken-line deltas.
 
-```
-stilus compare draft.md clean.md
-```
-
-```
-======================================================================
-MANUSCRIPT COMPARISON
-======================================================================
-Severity              : ok
-
-Character delta       : -12
-Word delta            : -2
-
-Table blocks delta    : +0
-Broken tables delta   : +0
-Broken lines delta    : -7
-
-Citations delta       : +0
-References delta      : +0
-======================================================================
+```bash
+stilus compare manuscript.md manuscript-clean.md
 ```
 
 ---
@@ -114,72 +81,35 @@ References delta      : +0
 ### `chunk` — split manuscript into per-chapter files
 
 ```bash
-stilus chunk <file> <output-dir> [--profile <name|path>]
+stilus chunk <file> [output-dir] [--profile <name|path>]
 ```
 
-Splits by chapter headings, writes one `.md` file per chapter into `output-dir`.
+Splits by chapter headings, one `.md` file per chapter. Output dir defaults to `<file>-chunks/` in the same directory.
 
-```
-stilus chunk manuscript.md ./chapters/
-```
-
-```
-======================================================================
-MANUSCRIPT CHUNKS: ./chapters/
-======================================================================
-Total chunks          : 12
-Total words           : 24,514
-
-  00  00-introduction.md                      1,204 words  (lines 1–87)
-  01  01-background.md                        2,018 words  (lines 89–201)
-  ...
-======================================================================
+```bash
+stilus chunk manuscript.md            # → manuscript-chunks/
+stilus chunk manuscript.md ./chapters/  # explicit dir
 ```
 
 ---
 
-### `profiles` — list available profiles
+### `profile` — manage profiles
 
 ```bash
-stilus profiles [--json]
+stilus profile [list]                          List available profiles
+stilus profile init <name> [output]            Scaffold new profile JSON
+stilus profile validate <path>                 Validate a profile file
 ```
-
-```
-Available profiles:
-  default
-  english-book  (extends: default)
-  indonesian-book  (extends: default)
-```
-
----
-
-### `init` — scaffold a custom profile
 
 ```bash
-stilus init <name> <output.json> [--extends <profile>]
+stilus profile                                 # list profiles
+stilus profile list --json
+stilus profile init my-novel                   # → my-novel.json
+stilus profile init my-novel profiles/my.json  # explicit path
+stilus profile init my-novel --extends default
+stilus profile validate ./my-novel.json
+stilus profile --help                          # profile-specific help
 ```
-
-Creates a JSON profile scaffold you can customize.
-
-```
-stilus init my-novel profile.json --extends default
-```
-
-Then use it with any command:
-
-```
-stilus inspect manuscript.md --profile ./profile.json
-```
-
----
-
-### `validate` — check a profile file
-
-```bash
-stilus validate <profile.json>
-```
-
-Validates a profile file for correctness. Exits `1` if invalid.
 
 ---
 
@@ -187,12 +117,25 @@ Validates a profile file for correctness. Exits `1` if invalid.
 
 Built-in profiles: `default`, `english-book`, `indonesian-book`.
 
-The `--profile` flag accepts either a built-in name or a path to a `.json` file:
+`--profile` accepts a built-in name or a path to a `.json` file:
 
 ```bash
 stilus inspect manuscript.md --profile english-book
 stilus inspect manuscript.md --profile ./my-profile.json
 ```
+
+Custom profile minimum (extending a built-in):
+
+```json
+{
+  "extends": "indonesian-book",
+  "name": "my-author",
+  "word_delta_threshold": 150,
+  "required_sections": ["DAFTAR ISI", "LAMPIRAN"]
+}
+```
+
+See [PROFILES.md](../../PROFILES.md) for the full field reference.
 
 ---
 
@@ -200,10 +143,11 @@ stilus inspect manuscript.md --profile ./my-profile.json
 
 | Flag | Commands | Description |
 |------|----------|-------------|
-| `--profile <name\|path>` | all except `profiles`, `init`, `validate` | Profile to use |
-| `--strict` | `inspect`, `clean`, `compare` | Treat warnings as errors |
-| `--dry-run` | `clean` | Analyze without writing any files |
-| `--json` | `inspect`, `clean`, `compare`, `profiles` | Output raw JSON |
+| `--profile <name\|path>` | inspect, clean, compare, chunk | Profile to use |
+| `--strict` | inspect, clean, compare | Treat warnings as errors |
+| `--dry-run` | clean | Analyze without writing files |
+| `--json` | inspect, clean, compare, profile list | Output raw JSON |
+| `--extends <name>` | profile init | Profile to extend |
 
 ---
 
