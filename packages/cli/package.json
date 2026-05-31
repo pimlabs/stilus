@@ -1,0 +1,42 @@
+{
+  "name": "@pimlabs/stilus",
+  "version": "1.0.3",
+  "description": "CLI for manuscript QA — inspect, clean, compare, chunk",
+  "type": "module",
+  "bin": {
+    "stilus": "dist/stilus"
+  },
+  "files": [
+    "dist/stilus",
+    "README.md"
+  ],
+  "keywords": [
+    "cli",
+    "manuscript",
+    "markdown",
+    "qa",
+    "writing"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pimlabs/stilus.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/pimlabs/stilus#readme",
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "bundle": "bun build --bundle --target bun src/index.ts --outfile dist/stilus && printf '#!/usr/bin/env bun\\n' | cat - dist/stilus > dist/stilus.tmp && mv dist/stilus.tmp dist/stilus && chmod +x dist/stilus",
+    "publish:npm": "npm pack && npm publish *.tgz --access public && rm *.tgz && git tag cli-v$(node -p \"require('./package.json').version\") && git push origin --tags"
+  },
+  "dependencies": {
+    "@stilus/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "typescript": "latest"
+  }
+}
