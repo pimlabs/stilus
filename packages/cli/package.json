@@ -1,6 +1,6 @@
 {
   "name": "@pimlabs/stilus",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI for manuscript QA — inspect, clean, compare, chunk",
   "type": "module",
   "bin": {
@@ -32,10 +32,8 @@
     "bundle": "bun build --bundle --target bun src/index.ts --outfile dist/stilus && printf '#!/usr/bin/env bun\\n' | cat - dist/stilus > dist/stilus.tmp && mv dist/stilus.tmp dist/stilus && chmod +x dist/stilus",
     "publish:npm": "npm pack && npm publish *.tgz --access public && rm *.tgz && git tag cli-v$(node -p \"require('./package.json').version\") && git push origin --tags"
   },
-  "dependencies": {
-    "@stilus/core": "workspace:*"
-  },
   "devDependencies": {
+    "@stilus/core": "workspace:*",
     "@types/node": "latest",
     "typescript": "latest"
   }
