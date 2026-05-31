@@ -42,7 +42,7 @@ Status: complete.
   "mcpServers": {
     "stilus": {
       "command": "bunx",
-      "args": ["-y", "stilus-mcp"]
+      "args": ["-y", "@pimlabs/stilus-mcp"]
     }
   }
 }

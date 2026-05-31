@@ -1,5 +1,5 @@
 {
-  "name": "stilus-mcp",
+  "name": "@pimlabs/stilus-mcp",
   "version": "1.0.0",
   "description": "MCP server for manuscript QA — inspect, clean, compare, chunk",
   "type": "module",
@@ -9,6 +9,12 @@
   "files": ["dist/index.js", "README.md"],
   "keywords": ["mcp", "manuscript", "markdown", "qa", "claude", "writing"],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pimlabs/stilus.git",
+    "directory": "packages/mcp"
+  },
+  "homepage": "https://github.com/pimlabs/stilus#readme",
   "engines": { "bun": ">=1.0.0" },
   "scripts": {
     "dev": "bun run src/index.ts",

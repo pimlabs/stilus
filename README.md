@@ -10,13 +10,14 @@ Add to your Claude Desktop or Claude Code MCP config:
 {
   "mcpServers": {
     "stilus": {
-      "command": "/Users/ekodedypurnomo/Workspace/stilus/packages/mcp/stilus-mcp"
+      "command": "bunx",
+      "args": ["-y", "@pimlabs/stilus-mcp"]
     }
   }
 }
 ```
 
-Then ask Claude to inspect, clean, or chunk your manuscript.
+Requires [Bun](https://bun.sh). Then ask Claude to inspect, clean, or chunk your manuscript.
 
 ## Tools
 
@@ -89,8 +90,8 @@ Pass `strict: true` to elevate warnings to errors (useful as a final gate).
 ## Development
 
 ```bash
-bun test          # run 48 tests
-bun run build     # build @stilus/core (tsc) + stilus-mcp binary
+bun test          # run 50 tests
+bun run bundle    # bundle stilus-mcp → packages/mcp/dist/index.js
 ```
 
 Source is under `packages/core/` (engine) and `packages/mcp/` (MCP server).
