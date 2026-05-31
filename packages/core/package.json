@@ -4,6 +4,11 @@
   "description": "Core manuscript QA engine — analysis, cleaning, chunking, profiles",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pimlabs/stilus.git",
+    "directory": "packages/core"
+  },
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
