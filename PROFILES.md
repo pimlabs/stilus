@@ -2,6 +2,29 @@
 
 A profile tells the engine how a specific manuscript is structured. Because every author, publisher, and language has different conventions, the profile is the single place where all those rules live. The engine itself has no language assumptions.
 
+## Quick Reference
+
+| Field | Required | What it controls |
+|-------|----------|-----------------|
+| `name` | ✓ | Profile identifier |
+| `chapter_pattern` | ✓ | Chapter heading detection |
+| `section_pattern` | ✓ | Section heading detection |
+| `reference_pattern` | ✓ | Reference list entry format |
+| `extends` | — | Inherit from another profile |
+| `subsection_pattern` | — | Sub-section detection (level 3) |
+| `stub_chapter_pattern` | — | Ghost heading detection |
+| `figure_pattern` | — | Figure caption lines |
+| `table_caption_pattern` | — | Table caption lines |
+| `footnote_pattern` | — | Footnote lines |
+| `sentence_endings` | — | Paragraph completion markers |
+| `broken_line_endings` | — | Valid line endings (non-broken) |
+| `word_delta_threshold` | — | Max allowed word count change after clean |
+| `broken_line_min_length` | — | Min line length to flag as broken |
+| `normalize_em_dash` | — | Convert `--` and `—` to ` — ` |
+| `normalize_space_before_punctuation` | — | Remove spaces before `,` and `.` |
+| `required_sections` | — | Sections that must be present |
+| `paragraph_merge_threshold` | — | Reserved for future use |
+
 ## Built-in Profiles
 
 Three profiles ship with stilus and are available by name:
