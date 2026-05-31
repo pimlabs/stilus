@@ -1,25 +1,38 @@
 {
   "name": "@pimlabs/stilus-mcp",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "MCP server for manuscript QA — inspect, clean, compare, chunk",
   "type": "module",
   "bin": {
-    "stilus-mcp": "./dist/index.js"
+    "stilus-mcp": "dist/stilus-mcp"
   },
-  "files": ["dist/index.js", "README.md"],
-  "keywords": ["mcp", "manuscript", "markdown", "qa", "claude", "writing"],
+  "files": [
+    "dist/stilus-mcp",
+    "README.md"
+  ],
+  "keywords": [
+    "mcp",
+    "manuscript",
+    "markdown",
+    "qa",
+    "claude",
+    "writing"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pimlabs/stilus.git",
+    "url": "git+https://github.com/pimlabs/stilus.git",
     "directory": "packages/mcp"
   },
   "homepage": "https://github.com/pimlabs/stilus#readme",
-  "engines": { "bun": ">=1.0.0" },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
   "scripts": {
     "dev": "bun run src/index.ts",
     "build": "bun build --compile --target bun src/index.ts --outfile stilus-mcp",
-    "bundle": "bun build --bundle --target bun src/index.ts --outfile dist/index.js",
+    "bundle": "bun build --bundle --target bun src/index.ts --outfile dist/stilus-mcp && printf '#!/usr/bin/env bun\\n' | cat - dist/stilus-mcp > dist/stilus-mcp.tmp && mv dist/stilus-mcp.tmp dist/stilus-mcp && chmod +x dist/stilus-mcp",
+    "publish:npm": "npm pack && npm publish *.tgz --access public && rm *.tgz",
     "test": "bun test"
   },
   "dependencies": {
