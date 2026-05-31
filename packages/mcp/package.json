@@ -35,11 +35,9 @@
     "publish:npm": "npm pack && npm publish *.tgz --access public && rm *.tgz && git tag v$(node -p \"require('./package.json').version\") && git push origin --tags",
     "test": "bun test"
   },
-  "dependencies": {
-    "@stilus/core": "workspace:*",
-    "@modelcontextprotocol/sdk": "latest"
-  },
   "devDependencies": {
+    "@stilus/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "latest",
     "@types/node": "latest",
     "typescript": "latest"
   }
